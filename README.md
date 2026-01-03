@@ -9,12 +9,12 @@
 
 数据统计：可视化展示借阅排行榜、图书流通数据。
 
-确保环境配置后
-运行LibrarySystemApplication
-并本地访问
+确保环境配置完整后
+在根目录运行主类LibrarySystemApplication
+并本地访问网站
 http://localhost:8080/login
 进行登入
 输入用户名和密码（密码采用加密方法，数据库查看到的是乱码，密码须自行保存）
-这里提供一些用户密码：
+这里提供一些用户和密码：
 普通用户：reader 123456
 管理员；admin admin123
