@@ -17,4 +17,4 @@ http://localhost:8080/login
 输入用户名和密码（密码采用加密方法，数据库查看到的是乱码，密码须自行保存）
 这里提供一些用户和密码：
 普通用户：reader 123456
-管理员；admin admin123
+管理员：admin admin123
