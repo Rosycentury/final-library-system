@@ -9,7 +9,7 @@
 
 数据统计：可视化展示借阅排行榜、图书流通数据。
 
-确保环境配置完整后
+确保环境配置完整以及启动MongoDB数据库后
 在根目录运行主类LibrarySystemApplication
 并本地访问网站
 http://localhost:8080/login
