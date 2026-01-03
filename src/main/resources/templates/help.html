@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>帮助中心 - 图书馆管理系统</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 导航栏样式 */
+        .navbar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* 主要内容区域 */
+        .help-container {
+            padding: 40px 0;
+        }
+        
+        .help-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .help-header h1 {
+            font-size: 36px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .help-header p {
+            color: #666;
+            font-size: 18px;
+        }
+        
+        /* 帮助分类 */
+        .help-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .category-card h3 {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .category-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        /* FAQ区域 */
+        .faq-section {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+        
+        .faq-section h2 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .faq-item {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 25px;
+        }
+        
+        .faq-question {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .faq-question:hover {
+            color: #3498db;
+        }
+        
+        .faq-answer {
+            color: #666;
+            line-height: 1.8;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .faq-answer.show {
+            max-height: 500px;
+        }
+        
+        .faq-toggle {
+            font-size: 20px;
+            color: #3498db;
+        }
+        
+        /* 联系支持区域 */
+        .contact-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .contact-section h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .contact-section p {
+            margin-bottom: 30px;
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .contact-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .contact-item h4 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        /* 页脚样式 */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .help-categories {
+                grid-template-columns: 1fr;
+            }
+            
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+        
+        /* 打印样式 */
+        @media print {
+            .navbar, .contact-section, footer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-container">
+                <a href="/" class="logo">📚 图书馆管理系统</a>
+                <div class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/about">关于我们</a>
+                    <a href="/help" style="background-color: rgba(255,255,255,0.2);">帮助中心</a>
+                    <span th:if="${session.username != null}">
+                        <a href="/profile">个人中心</a>
+                        <a href="/logout">退出</a>
+                    </span>
+                    <span th:unless="${session.username != null}">
+                        <a href="/login">登录</a>
+                        <a href="/register">注册</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 帮助中心内容 -->
+    <div class="container help-container">
+        <!-- 页面标题 -->
+        <div class="help-header">
+            <h1>帮助中心</h1>
+            <p>有问题？我们来帮您解决</p>
+        </div>
+        
+        <!-- 帮助分类 -->
+        <div class="help-categories">
+            <div class="category-card">
+                <div class="category-icon">📚</div>
+                <h3>图书借阅</h3>
+                <p>学习如何查找、借阅和归还图书，以及了解借阅规则。</p>
+                <a href="#faq-borrow" style="color: #3498db; text-decoration: none; font-weight: 500;">查看相关问题 →</a>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">👤</div>
+                <h3>账户管理</h3>
+                <p>关于注册、登录、密码重置和个人信息管理的帮助。</p>
+                <a href="#faq-account" style="color: #3498db; text-decoration: none; font-weight: 500;">查看相关问题 →</a>
+            </div>
+            
+            <div class="category-card">
+                <div class="category-icon">⚙️</div>
+                <h3>系统使用</h3>
+                <p>系统功能使用指南和常见问题解答。</p>
+                <a href="#faq-system" style="color: #3498db; text-decoration: none; font-weight: 500;">查看相关问题 →</a>
+            </div>
+        </div>
+        
+        <!-- 常见问题 -->
+        <div class="faq-section">
+            <h2>常见问题解答</h2>
+            
+            <!-- 图书借阅相关问题 -->
+            <div id="faq-borrow">
+                <h3 style="color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">📚 图书借阅</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何借阅图书？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>借阅图书的步骤：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>登录您的账户</li>
+                            <li>在"图书列表"页面浏览或搜索图书</li>
+                            <li>找到想要借阅的图书，点击"借阅"按钮</li>
+                            <li>确认借阅信息，系统会自动记录您的借阅</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>一次可以借几本书？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>根据用户类型，借阅数量限制如下：</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>普通读者：最多可同时借阅 <strong>5本</strong> 图书</li>
+                            <li>管理员：借阅数量无限制</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>借阅期限是多久？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>每本图书的标准借阅期限为 <strong>30天</strong>。</p>
+                        <p>到期前，您可以续借一次，再延长30天。</p>
+                        <p style="color: #e74c3c; font-weight: bold; margin-top: 10px;">注意：逾期归还将影响您的借阅权限。</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何归还图书？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>归还图书的步骤：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>登录您的账户</li>
+                            <li>进入"我的借阅"页面</li>
+                            <li>找到要归还的图书，点击"归还"按钮</li>
+                            <li>确认归还，系统会更新图书状态</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 账户管理相关问题 -->
+            <div id="faq-account" style="margin-top: 40px;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">👤 账户管理</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何注册账户？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>注册账户的步骤：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>访问网站首页，点击"注册"按钮</li>
+                            <li>填写用户名、密码、姓名和邮箱</li>
+                            <li>确认密码后提交注册</li>
+                            <li>注册成功后，使用用户名和密码登录</li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>忘记密码怎么办？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>如果您忘记了密码，请按以下步骤操作：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>在登录页面点击"忘记密码"（如果该功能已启用）</li>
+                            <li>或联系系统管理员重置密码</li>
+                            <li>管理员可以为您重置密码并告知新密码</li>
+                        </ol>
+                        <p style="margin-top: 10px; color: #666;">管理员联系方式：admin@library.com 或 400-123-4567</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何修改个人信息？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>修改个人信息的步骤：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>登录您的账户</li>
+                            <li>点击右上角您的用户名或进入"个人中心"</li>
+                            <li>在个人资料页面可以查看和修改部分信息</li>
+                            <li>某些信息（如用户名）可能需要联系管理员修改</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 系统使用相关问题 -->
+            <div id="faq-system" style="margin-top: 40px;">
+                <h3 style="color: #2c3e50; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee;">⚙️ 系统使用</h3>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何搜索图书？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>搜索图书的方法：</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>在"图书列表"页面顶部有搜索框</li>
+                            <li>可以按书名、作者、ISBN进行搜索</li>
+                            <li>支持模糊搜索，输入关键词即可</li>
+                            <li>搜索结果会分页显示，便于浏览</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>图书库存是如何更新的？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>图书库存的更新机制：</p>
+                        <ul style="margin-left: 20px; margin-top: 10px;">
+                            <li>当图书被借出时，可用数量自动减少</li>
+                            <li>当图书被归还时，可用数量自动增加</li>
+                            <li>管理员可以手动添加、修改或删除图书信息</li>
+                            <li>系统会实时更新库存状态</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何查看借阅历史？</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>查看借阅历史的方法：</p>
+                        <ol style="margin-left: 20px; margin-top: 10px;">
+                            <li>登录您的账户</li>
+                            <li>进入"我的借阅"页面</li>
+                            <li>这里会显示您所有的借阅记录</li>
+                            <li>包括当前借阅、已归还和逾期记录</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 联系支持 -->
+        <div class="contact-section">
+            <h2>需要更多帮助？</h2>
+            <p>如果以上解答未能解决您的问题，请随时联系我们的支持团队。</p>
+            
+            <div class="contact-info">
+                <div class="contact-item">
+                    <h4>📧 邮箱支持</h4>
+                    <p>support@library.com</p>
+                    <p style="font-size: 14px; opacity: 0.9;">24小时内回复</p>
+                </div>
+                
+                <div class="contact-item">
+                    <h4>📞 电话支持</h4>
+                    <p>400-123-4567</p>
+                    <p style="font-size: 14px; opacity: 0.9;">工作日 9:00-18:00</p>
+                </div>
+                
+                <div class="contact-item">
+                    <h4>📍 现场支持</h4>
+                    <p>图书馆一楼服务台</p>
+                    <p style="font-size: 14px; opacity: 0.9;">工作日 8:30-17:30</p>
+                </div>
+            </div>
+            
+            <p style="margin-top: 30px; font-size: 14px; opacity: 0.8;">
+                我们的支持团队随时准备为您提供帮助，确保您能顺利使用图书馆管理系统。
+            </p>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <p>© 2025 图书馆管理系统 | 版权所有</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/about">关于我们</a>
+                    <a href="/help">帮助中心</a>
+                    <a href="#" onclick="window.print()">打印本页</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('帮助中心页面加载完成');
+            
+            // 检查URL中的锚点，如果有则滚动到对应位置
+            const hash = window.location.hash;
+            if (hash) {
+                setTimeout(() => {
+                    const element = document.querySelector(hash);
+                    if (element) {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 100);
+            }
+            
+            // 初始化FAQ
+            initializeFAQ();
+        });
+        
+        // 初始化FAQ功能
+        function initializeFAQ() {
+            // 为所有FAQ问题添加点击事件
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            faqQuestions.forEach(question => {
+                const toggle = question.querySelector('.faq-toggle');
+                const answer = question.nextElementSibling;
+                
+                // 检查是否应该默认展开（通过URL锚点）
+                const hash = window.location.hash;
+                if (hash && question.parentElement.id === hash.substring(1)) {
+                    answer.classList.add('show');
+                    toggle.textContent = '−';
+                }
+            });
+        }
+        
+        // 切换FAQ答案显示/隐藏
+        function toggleFAQ(questionElement) {
+            const answer = questionElement.nextElementSibling;
+            const toggle = questionElement.querySelector('.faq-toggle');
+            
+            if (answer.classList.contains('show')) {
+                answer.classList.remove('show');
+                toggle.textContent = '+';
+            } else {
+                // 关闭其他打开的FAQ
+                const allAnswers = document.querySelectorAll('.faq-answer.show');
+                const allToggles = document.querySelectorAll('.faq-toggle');
+                
+                allAnswers.forEach(item => {
+                    if (item !== answer) {
+                        item.classList.remove('show');
+                    }
+                });
+                
+                allToggles.forEach(item => {
+                    if (item !== toggle) {
+                        item.textContent = '+';
+                    }
+                });
+                
+                // 打开当前FAQ
+                answer.classList.add('show');
+                toggle.textContent = '−';
+            }
+        }
+        
+        // 搜索FAQ功能
+        function searchFAQ() {
+            const searchTerm = document.getElementById('faq-search').value.toLowerCase();
+            const faqItems = document.querySelectorAll('.faq-item');
+            let foundCount = 0;
+            
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question span:first-child').textContent.toLowerCase();
+                const answer = item.querySelector('.faq-answer').textContent.toLowerCase();
+                
+                if (question.includes(searchTerm) || answer.includes(searchTerm)) {
+                    item.style.display = 'block';
+                    foundCount++;
+                    
+                    // 高亮显示搜索词
+                    if (searchTerm) {
+                        highlightText(item, searchTerm);
+                    }
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            
+            // 显示搜索结果统计
+            const searchResults = document.getElementById('search-results');
+            if (searchResults) {
+                if (searchTerm) {
+                    searchResults.textContent = `找到 ${foundCount} 个相关结果`;
+                    searchResults.style.display = 'block';
+                } else {
+                    searchResults.style.display = 'none';
+                }
+            }
+        }
+        
+        // 高亮文本功能
+        function highlightText(element, searchTerm) {
+            const textNodes = getTextNodes(element);
+            
+            textNodes.forEach(node => {
+                const originalText = node.textContent;
+                const regex = new RegExp(`(${searchTerm})`, 'gi');
+                const highlightedText = originalText.replace(regex, '<mark>$1</mark>');
+                
+                if (highlightedText !== originalText) {
+                    const span = document.createElement('span');
+                    span.innerHTML = highlightedText;
+                    node.parentNode.replaceChild(span, node);
+                }
+            });
+        }
+        
+        // 获取元素中的所有文本节点
+        function getTextNodes(element) {
+            const textNodes = [];
+            
+            function findTextNodes(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    textNodes.push(node);
+                } else {
+                    for (const child of node.childNodes) {
+                        findTextNodes(child);
+                    }
+                }
+            }
+            
+            findTextNodes(element);
+            return textNodes;
+        }
+    </script>
+</body>
+</html>

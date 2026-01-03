@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员首页 - 图书馆管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .dashboard-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .dashboard-card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .logout-btn {
+            float: right;
+            background-color: #e74c3c;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>图书馆管理系统 - 管理员控制台</h1>
+            <p>欢迎回来，管理员：<span th:text="${username}"></span></p>
+            <a href="/logout" class="btn logout-btn">退出登录</a>
+            <div style="clear: both;"></div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>📊 系统概览</h3>
+                <p>查看系统统计信息和仪表板</p>
+                <a th:href="@{/admin/dashboard}" class="btn">进入仪表板</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>👥 用户管理</h3>
+                <p>管理系统用户和权限</p>
+                <a th:href="@{/admin/users}" class="btn">用户列表</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>📚 图书管理</h3>
+                <p>添加、编辑和删除图书信息</p>
+                <a th:href="@{/books}" class="btn">图书列表</a>
+                <a th:href="@{/books/add}" class="btn" style="margin-left: 10px;">添加图书</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>📖 借阅管理</h3>
+                <p>管理所有借阅和归还记录</p>
+                <a th:href="@{/admin/all-borrows}" class="btn">借阅记录</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>⚠️ 逾期管理</h3>
+                <p>处理逾期未还的图书</p>
+                <a th:href="@{/admin/overdue}" class="btn">逾期记录</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>📈 数据统计</h3>
+                <p>查看详细的数据分析报告</p>
+                <a th:href="@{/borrow/statistics}" class="btn">查看统计</a>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简单的JavaScript增强
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('管理员首页加载完成');
+            
+            // 添加卡片点击效果
+            const cards = document.querySelectorAll('.dashboard-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.classList.contains('btn')) {
+                        const link = this.querySelector('a');
+                        if (link) {
+                            window.location.href = link.href;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

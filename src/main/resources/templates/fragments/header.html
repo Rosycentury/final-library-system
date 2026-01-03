@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:fragment="header">
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-container">
+                <a href="/" class="logo">📚 图书馆管理系统</a>
+                <div class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/about">关于我们</a>
+                    <a href="/help">帮助中心</a>
+                    <span th:if="${session.username != null}">
+                        <span style="color: #ecf0f1; margin-right: 10px;">欢迎，[[${session.username}]]</span>
+                        <a href="/profile">个人中心</a>
+                        <a href="/logout">退出</a>
+                    </span>
+                    <span th:unless="${session.username != null}">
+                        <a href="/login">登录</a>
+                        <a href="/register">注册</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+</html>

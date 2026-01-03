@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户首页 - 图书馆管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .dashboard-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e9ecef;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2196F3;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="logo">📚 图书馆管理系统</a>
+            <div class="nav-links">
+                <span>欢迎，<span th:text="${username}">用户</span></span>
+                <a href="/books">图书列表</a>
+                <a href="/borrow/my-records">我的借阅</a>
+                <a href="/profile">个人中心</a>
+                <a href="/logout">退出登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1>用户控制台</h1>
+        
+        <!-- 欢迎信息 -->
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin-bottom: 30px;">
+            <h2>欢迎回来，<span th:text="${username}"></span>！</h2>
+            <p>今天是 [[${#dates.format(#dates.createNow(), 'yyyy年MM月dd日')}]]，祝您阅读愉快！</p>
+        </div>
+        
+        <!-- 快速统计 -->
+        <div class="quick-stats">
+            <div class="stat-box">
+                <div class="stat-number" id="maxBorrow">5</div>
+                <div class="stat-label">最大可借阅数</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-number" id="currentBorrows">0</div>
+                <div class="stat-label">当前借阅中</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-number" id="overdueBooks">0</div>
+                <div class="stat-label">逾期图书</div>
+            </div>
+            
+            <div class="stat-box">
+                <div class="stat-number">30</div>
+                <div class="stat-label">借阅期限(天)</div>
+            </div>
+        </div>
+        
+        <!-- 功能卡片 -->
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <h3>🔍 查找图书</h3>
+                <p>搜索和浏览馆藏图书</p>
+                <a href="/books" class="btn btn-primary">前往图书库</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>📚 我的借阅</h3>
+                <p>查看和管理当前借阅</p>
+                <a href="/borrow/my-records" class="btn btn-primary">查看记录</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>📖 借阅历史</h3>
+                <p>查看所有借阅历史记录</p>
+                <a href="/borrow/my-records" class="btn btn-primary">历史记录</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>👤 个人中心</h3>
+                <p>管理个人信息和设置</p>
+                <a href="/profile" class="btn btn-primary">个人资料</a>
+            </div>
+        </div>
+        
+        <!-- 提示信息 -->
+        <div class="card" style="background-color: #e3f2fd; border-left: 5px solid #2196F3;">
+            <h3 style="color: #1565C0;">💡 使用提示</h3>
+            <ul style="color: #333; line-height: 1.8;">
+                <li>每本图书的借阅期限为30天，请按时归还</li>
+                <li>在"我的借阅"页面可以续借图书（每本只能续借一次）</li>
+                <li>如有问题，请查看<a href="/help">帮助中心</a>或联系管理员</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 图书馆管理系统 | 用户首页</p>
+            <p id="currentTime"></p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('用户首页 V2 加载完成');
+            
+            // 更新时间
+            function updateTime() {
+                const now = new Date();
+                document.getElementById('currentTime').textContent = 
+                    '当前时间: ' + now.toLocaleString('zh-CN');
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // 使用AJAX获取用户统计数据
+            fetchUserStats();
+        });
+        
+        // 异步获取用户统计数据
+        async function fetchUserStats() {
+            try {
+                console.log('开始获取用户统计数据...');
+                
+                // 使用fetch API获取统计数据
+                const response = await fetch('/api/user-stats');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('获取到用户统计数据:', data);
+                    
+                    // 更新页面数据
+                    if (data.success) {
+                        document.getElementById('maxBorrow').textContent = data.maxBorrow || 5;
+                        document.getElementById('currentBorrows').textContent = data.currentBorrows || 0;
+                        document.getElementById('overdueBooks').textContent = data.overdueCount || 0;
+                    } else {
+                        console.error('获取统计数据失败:', data.message);
+                    }
+                } else {
+                    console.error('HTTP请求失败:', response.status);
+                }
+            } catch (error) {
+                console.error('获取统计数据时出错:', error);
+            }
+        }
+    </script>
+</body>
+</html>

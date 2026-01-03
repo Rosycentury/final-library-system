@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${book.title + ' - 图书详情'}">图书详情</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+        }
+        
+        .book-detail-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .book-cover-large {
+            height: 400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .book-cover-icon {
+            font-size: 8rem;
+            opacity: 0.8;
+        }
+        
+        .book-info-section {
+            padding: 30px;
+        }
+        
+        .book-title {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            width: 120px;
+            display: inline-block;
+        }
+        
+        .info-value {
+            color: #2c3e50;
+        }
+        
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-unavailable {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-buttons {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        
+        .borrow-history {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .history-table th {
+            background-color: #e9ecef;
+            border: none;
+        }
+        
+        .history-table td {
+            vertical-align: middle;
+        }
+        
+        .back-link {
+            text-decoration: none;
+            color: #666;
+            transition: color 0.3s;
+        }
+        
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <!-- 消息提示 -->
+    <div th:replace="fragments/navbar :: messages"></div>
+
+    <!-- 主要内容 -->
+    <div class="container-fluid mt-4">
+        <!-- 返回链接 -->
+        <div class="mb-4">
+            <a th:href="@{/books}" class="back-link">
+                <i class="fas fa-arrow-left me-2"></i>返回图书列表
+            </a>
+        </div>
+        
+        <!-- 错误提示 -->
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <span th:text="${error}"></span>
+        </div>
+        
+        <div th:unless="${error}">
+            <div class="row">
+                <!-- 左侧：图书信息 -->
+                <div class="col-lg-8">
+                    <div class="book-detail-container">
+                        <!-- 图书封面 -->
+                        <div class="book-cover-large">
+                            <i class="fas fa-book book-cover-icon"></i>
+                        </div>
+                        
+                        <!-- 图书信息 -->
+                        <div class="book-info-section">
+                            <h1 class="book-title" th:text="${book.title}"></h1>
+                            
+                            <!-- 图书基本信息 -->
+                            <div class="info-item">
+                                <span class="info-label">作者：</span>
+                                <span class="info-value" th:text="${book.author}"></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">ISBN：</span>
+                                <span class="info-value" th:text="${book.isbn}"></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">出版社：</span>
+                                <span class="info-value" th:text="${book.publisher}"></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">总数量：</span>
+                                <span class="info-value" th:text="${book.totalCopies}"></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">可借数量：</span>
+                                <span class="info-value" th:text="${book.availableCopies}"></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">入库时间：</span>
+                                <span class="info-value" 
+                                      th:text="${#temporals.format(book.createTime, 'yyyy-MM-dd HH:mm')}"></span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">最后更新：</span>
+                                <span class="info-value" 
+                                      th:text="${#temporals.format(book.updateTime, 'yyyy-MM-dd HH:mm')}"></span>
+                            </div>
+                            
+                            <!-- 状态标签 -->
+                            <div class="info-item">
+                                <span class="info-label">状态：</span>
+                                <span th:if="${book.availableCopies > 0}" class="status-badge status-available">
+                                    <i class="fas fa-check-circle me-1"></i>可借阅
+                                </span>
+                                <span th:unless="${book.availableCopies > 0}" class="status-badge status-unavailable">
+                                    <i class="fas fa-times-circle me-1"></i>已借完
+                                </span>
+                            </div>
+                            
+                            <!-- 操作按钮 -->
+                            <div class="action-buttons">
+                                <div class="d-flex gap-3 flex-wrap">
+                                    <!-- 借阅按钮 -->
+                                    <form th:action="@{/borrow/borrow}" method="post" th:if="${book.availableCopies > 0}">
+                                        <input type="hidden" name="bookId" th:value="${book.id}">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="fas fa-book-open me-2"></i>立即借阅
+                                        </button>
+                                    </form>
+                                    
+                                    <!-- 不可借状态 -->
+                                    <button th:unless="${book.availableCopies > 0}" 
+                                            class="btn btn-secondary btn-lg" disabled>
+                                        <i class="fas fa-ban me-2"></i>暂时不可借
+                                    </button>
+                                    
+                                    <!-- 管理员操作 -->
+                                    <div th:if="${session.role == 'ADMIN'}" class="btn-group">
+                                        <a th:href="@{'/books/' + ${book.id} + '/edit'}" 
+                                           class="btn btn-warning btn-lg">
+                                            <i class="fas fa-edit me-2"></i>编辑
+                                        </a>
+                                        <a th:href="@{'/books/' + ${book.id} + '/delete'}" 
+                                           class="btn btn-danger btn-lg"
+                                           onclick="return confirm('确定要删除这本书吗？')">
+                                            <i class="fas fa-trash me-2"></i>删除
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 借阅历史 -->
+                    <div class="borrow-history mt-4" th:if="${session.role == 'ADMIN'}">
+                        <h4><i class="fas fa-history me-2"></i>借阅历史</h4>
+                        <p class="text-muted mb-3">本书的借阅记录（仅管理员可见）</p>
+                        
+                        <div th:if="${borrowRecords != null && !borrowRecords.isEmpty()}">
+                            <div class="table-responsive">
+                                <table class="table history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>读者</th>
+                                            <th>借阅时间</th>
+                                            <th>应还时间</th>
+                                            <th>状态</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="record : ${borrowRecords}">
+                                            <td th:text="${record.username}"></td>
+                                            <td th:text="${#temporals.format(record.borrowDate, 'yyyy-MM-dd')}"></td>
+                                            <td th:text="${#temporals.format(record.dueDate, 'yyyy-MM-dd')}"></td>
+                                            <td>
+                                                <span th:if="${record.status == 'BORROWED'}" 
+                                                      class="badge bg-warning">借阅中</span>
+                                                <span th:if="${record.status == 'RETURNED'}" 
+                                                      class="badge bg-success">已归还</span>
+                                                <span th:if="${record.status == 'OVERDUE'}" 
+                                                      class="badge bg-danger">逾期</span>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-info record-detail-btn" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#recordDetailModal"
+                                                        th:data-id="${record.id}"
+                                                        th:data-username="${record.username}"
+                                                        th:data-borrow-date="${#temporals.format(record.borrowDate, 'yyyy-MM-dd HH:mm')}"
+                                                        th:data-due-date="${#temporals.format(record.dueDate, 'yyyy-MM-dd HH:mm')}"
+                                                        th:data-status="${record.status}">
+                                                    详情
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div th:unless="${borrowRecords != null && !borrowRecords.isEmpty()}">
+                            <p class="text-muted text-center py-4">
+                                <i class="fas fa-info-circle me-2"></i>暂无借阅记录
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 右侧：统计信息 -->
+                <div class="col-lg-4">
+                    <!-- 图书统计 -->
+                    <div class="stat-card">
+                        <div class="stat-number" th:text="${book.totalCopies}">0</div>
+                        <div class="stat-label">总数量</div>
+                        <i class="fas fa-book mt-3" style="font-size: 2rem; color: #3498db;"></i>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" th:text="${book.availableCopies}">0</div>
+                        <div class="stat-label">可借数量</div>
+                        <i class="fas fa-check-circle mt-3" style="font-size: 2rem; color: #2ecc71;"></i>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" th:text="${book.totalCopies - book.availableCopies}">0</div>
+                        <div class="stat-label">已借出</div>
+                        <i class="fas fa-exchange-alt mt-3" style="font-size: 2rem; color: #f39c12;"></i>
+                    </div>
+                    
+                    <!-- 借阅规则 -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle me-2"></i>借阅规则
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    每人最多可借5本
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    借阅期限30天
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    每本书可续借一次
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    逾期会产生罚金
+                                </li>
+                                <li class="mb-0">
+                                    <i class="fas fa-check text-success me-2"></i>
+                                    请爱护图书，按时归还
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- 相似图书推荐 -->
+                    <div class="card mt-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bookmark me-2"></i>相似图书
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                基于当前图书的标签和分类推荐
+                            </p>
+                            <div class="list-group list-group-flush">
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">图书标题1</h6>
+                                        <small class="text-muted">可借</small>
+                                    </div>
+                                    <p class="mb-1 small">作者1</p>
+                                </a>
+                                <a href="#" class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">图书标题2</h6>
+                                        <small class="text-muted">可借</small>
+                                    </div>
+                                    <p class="mb-1 small">作者2</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 借阅记录详情模态框 -->
+    <div class="modal fade" id="recordDetailModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">借阅记录详情</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">读者姓名：</label>
+                        <p class="form-control-static" id="detail-username"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">借阅时间：</label>
+                        <p class="form-control-static" id="detail-borrowDate"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">应还时间：</label>
+                        <p class="form-control-static" id="detail-dueDate"></p>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">状态：</label>
+                        <p class="form-control-static">
+                            <span id="detail-status" class="badge"></span>
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div th:replace="fragments/navbar :: footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 自定义脚本 -->
+    <script>
+        // 显示借阅记录详情
+        function showRecordDetail(button) {
+            const id = button.getAttribute('data-id');
+            const username = button.getAttribute('data-username');
+            const borrowDate = button.getAttribute('data-borrow-date');
+            const dueDate = button.getAttribute('data-due-date');
+            const status = button.getAttribute('data-status');
+            
+            document.getElementById('detail-username').textContent = username;
+            document.getElementById('detail-borrowDate').textContent = borrowDate;
+            document.getElementById('detail-dueDate').textContent = dueDate;
+            
+            const statusBadge = document.getElementById('detail-status');
+            statusBadge.textContent = getStatusText(status);
+            
+            // 根据状态设置颜色
+            if (status === 'BORROWED') {
+                statusBadge.className = 'badge bg-warning';
+            } else if (status === 'RETURNED') {
+                statusBadge.className = 'badge bg-success';
+            } else if (status === 'OVERDUE') {
+                statusBadge.className = 'badge bg-danger';
+            }
+        }
+        
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                'BORROWED': '借阅中',
+                'RETURNED': '已归还',
+                'OVERDUE': '逾期'
+            };
+            return statusMap[status] || status;
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有借阅记录详情按钮添加点击事件
+            document.querySelectorAll('.record-detail-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    showRecordDetail(this);
+                });
+            });
+            
+            // 借阅确认
+            const borrowForm = document.querySelector('form[action*="/borrow/borrow"]');
+            if (borrowForm) {
+                borrowForm.addEventListener('submit', function(e) {
+                    if (!confirm('确定要借阅这本书吗？')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+            
+            // 自动关闭警告框
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

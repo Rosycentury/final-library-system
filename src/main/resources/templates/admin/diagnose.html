@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库诊断 - 图书馆管理系统</title>
+    <style>
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: #007acc;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .diagnose-info {
+            background: #252526;
+            border: 1px solid #444;
+            padding: 20px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #007acc;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        
+        .btn:hover {
+            background: #005a9e;
+        }
+        
+        .btn-danger {
+            background: #d13438;
+        }
+        
+        .btn-danger:hover {
+            background: #a1262a;
+        }
+        
+        .btn-success {
+            background: #107c10;
+        }
+        
+        .btn-success:hover {
+            background: #0c5c0c;
+        }
+        
+        .section {
+            background: #2d2d30;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .error {
+            background: #4c1919;
+            color: #f48771;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #f48771;
+        }
+        
+        .success {
+            background: #193c19;
+            color: #4ec9b0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 5px solid #4ec9b0;
+        }
+        
+        code {
+            background: #1e1e1e;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: #9cdcfe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数据库诊断</h1>
+            <p>系统状态检查和问题诊断</p>
+        </div>
+        
+        <!-- 错误消息 -->
+        <div th:if="${error != null}" class="error">
+            <strong>错误:</strong> <span th:text="${error}"></span>
+        </div>
+        
+        <!-- 成功消息 -->
+        <div th:if="${success != null}" class="success">
+            <strong>成功:</strong> <span th:text="${success}"></span>
+        </div>
+        
+        <!-- 操作按钮 -->
+        <div class="actions">
+            <a href="/admin/dashboard" class="btn">返回仪表板</a>
+            <a href="/admin/users" class="btn">查看用户管理</a>
+            <button onclick="refreshDiagnose()" class="btn">刷新诊断信息</button>
+            <button onclick="createTestUsers()" class="btn btn-success">创建测试用户</button>
+            <button onclick="clearAllUsers()" class="btn btn-danger">清空用户数据</button>
+        </div>
+        
+        <!-- 诊断信息 -->
+        <div class="section">
+            <h2>诊断结果</h2>
+            <div class="diagnose-info" th:text="${diagnoseInfo}">
+                正在加载诊断信息...
+            </div>
+        </div>
+        
+        <!-- 数据库连接测试 -->
+        <div class="section">
+            <h2>数据库连接测试</h2>
+            <div style="display: flex; gap: 15px;">
+                <button onclick="testDatabase()" class="btn">测试数据库连接</button>
+                <button onclick="testUserQuery()" class="btn">测试用户查询</button>
+                <button onclick="createAdminUser()" class="btn btn-success">创建管理员账户</button>
+            </div>
+            <div id="testResults" style="margin-top: 20px;"></div>
+        </div>
+        
+        <!-- 日志信息 -->
+        <div class="section">
+            <h2>系统日志</h2>
+            <div id="logOutput" style="height: 200px; overflow-y: auto; background: #1e1e1e; padding: 10px; border-radius: 5px; font-family: monospace;">
+                日志输出将显示在这里...
+            </div>
+            <button onclick="clearLogs()" class="btn" style="margin-top: 10px;">清空日志</button>
+        </div>
+        
+        <!-- 快速修复 -->
+        <div class="section">
+            <h2>快速修复</h2>
+            <div style="color: #ffcc66; margin-bottom: 15px;">
+                ⚠️ 警告：以下操作会修改数据库数据，请谨慎操作！
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <button onclick="fixUserPermissions()" class="btn">修复用户权限</button>
+                <button onclick="resetAllPasswords()" class="btn">重置所有密码</button>
+                <button onclick="createDefaultUsers()" class="btn">创建默认用户</button>
+                <button onclick="rebuildDatabase()" class="btn btn-danger">重建数据库</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 刷新诊断信息
+        function refreshDiagnose() {
+            logMessage("刷新诊断信息...");
+            window.location.reload();
+        }
+        
+        // 创建测试用户
+        function createTestUsers() {
+            if (!confirm('确定要创建测试用户吗？这可能会创建重复用户。')) {
+                return;
+            }
+            
+            fetch('/admin/create-test-users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    logMessage("✅ " + data.message);
+                    showTestResult("测试用户创建成功！", true);
+                    setTimeout(refreshDiagnose, 1000);
+                } else {
+                    logMessage("❌ " + data.message);
+                    showTestResult("创建失败: " + data.message, false);
+                }
+            })
+            .catch(error => {
+                logMessage("❌ 请求失败: " + error);
+                showTestResult("请求失败: " + error, false);
+            });
+        }
+        
+        // 清空用户数据
+        function clearAllUsers() {
+            if (!confirm('⚠️ 警告：这将删除所有用户数据！确定要继续吗？')) {
+                return;
+            }
+            
+            fetch('/admin/clear-users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    logMessage("✅ " + data.message);
+                    showTestResult("用户数据已清空！", true);
+                    setTimeout(refreshDiagnose, 1000);
+                } else {
+                    logMessage("❌ " + data.message);
+                    showTestResult("清空失败: " + data.message, false);
+                }
+            })
+            .catch(error => {
+                logMessage("❌ 请求失败: " + error);
+                showTestResult("请求失败: " + error, false);
+            });
+        }
+        
+        // 测试数据库连接
+        function testDatabase() {
+            logMessage("测试数据库连接...");
+            
+            fetch('/db-test')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        logMessage("✅ 数据库连接成功！");
+                        logMessage("   数据库: " + data.database);
+                        logMessage("   集合: " + JSON.stringify(data.collections));
+                        showTestResult("数据库连接正常！", true);
+                    } else {
+                        logMessage("❌ 数据库连接失败: " + data.message);
+                        showTestResult("连接失败: " + data.message, false);
+                    }
+                })
+                .catch(error => {
+                    logMessage("❌ 测试请求失败: " + error);
+                    showTestResult("请求失败: " + error, false);
+                });
+        }
+        
+        // 测试用户查询
+        function testUserQuery() {
+            logMessage("测试用户查询...");
+            
+            fetch('/admin/users/debug')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        logMessage("✅ 用户查询成功！");
+                        logMessage("   用户数量: " + data.count);
+                        logMessage("   用户列表: " + JSON.stringify(data.users, null, 2));
+                        showTestResult("用户查询正常，共 " + data.count + " 个用户", true);
+                    } else {
+                        logMessage("❌ 用户查询失败: " + data.message);
+                        showTestResult("查询失败: " + data.message, false);
+                    }
+                })
+                .catch(error => {
+                    logMessage("❌ 测试请求失败: " + error);
+                    showTestResult("请求失败: " + error, false);
+                });
+        }
+        
+        // 创建管理员账户
+        function createAdminUser() {
+            if (!confirm('确定要创建管理员账户吗？如果已存在，会更新密码。')) {
+                return;
+            }
+            
+            fetch('/admin/create-admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: 'admin',
+                    password: 'admin123'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    logMessage("✅ " + data.message);
+                    showTestResult("管理员账户创建成功！", true);
+                    setTimeout(refreshDiagnose, 1000);
+                } else {
+                    logMessage("❌ " + data.message);
+                    showTestResult("创建失败: " + data.message, false);
+                }
+            })
+            .catch(error => {
+                logMessage("❌ 请求失败: " + error);
+                showTestResult("请求失败: " + error, false);
+            });
+        }
+        
+        // 显示测试结果
+        function showTestResult(message, isSuccess) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = `
+                <div style="background: ${isSuccess ? '#193c19' : '#4c1919'}; 
+                            color: ${isSuccess ? '#4ec9b0' : '#f48771'}; 
+                            padding: 15px; 
+                            border-radius: 5px;">
+                    ${isSuccess ? '✅' : '❌'} ${message}
+                </div>
+            `;
+        }
+        
+        // 日志消息
+        function logMessage(message) {
+            const logDiv = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}\n`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // 清空日志
+        function clearLogs() {
+            document.getElementById('logOutput').innerHTML = '日志已清空...\n';
+        }
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('数据库诊断页面加载完成');
+            logMessage('页面加载完成');
+            
+            // 自动测试数据库连接
+            setTimeout(testDatabase, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 图书馆管理系统</title>
+    <style>
+        /* 使用与帮助中心相同的导航栏和页脚样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        /* 关于页面特定样式 */
+        .about-container {
+            padding: 60px 0;
+        }
+        
+        .about-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .about-header h1 {
+            font-size: 42px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .about-header p {
+            color: #666;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* 关于卡片 */
+        .about-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        .about-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .about-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .about-card h3 {
+            font-size: 24px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .about-card p {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        /* 团队展示 */
+        .team-section {
+            margin-bottom: 60px;
+        }
+        
+        .team-section h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .team-member {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+        
+        .member-avatar {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+        
+        .member-name {
+            font-size: 20px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .member-role {
+            color: #3498db;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        /* 页脚 */
+        footer {
+            background: #2c3e50;
+            color: white;
+            padding: 30px 0;
+            margin-top: 60px;
+            text-align: center;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .footer-links a:hover {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .about-cards, .team-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-container">
+                <a href="/" class="logo">📚 图书馆管理系统</a>
+                <div class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/about" style="background-color: rgba(255,255,255,0.2);">关于我们</a>
+                    <a href="/help">帮助中心</a>
+                    <span th:if="${session.username != null}">
+                        <a href="/profile">个人中心</a>
+                        <a href="/logout">退出</a>
+                    </span>
+                    <span th:unless="${session.username != null}">
+                        <a href="/login">登录</a>
+                        <a href="/register">注册</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 关于我们内容 -->
+    <div class="container about-container">
+        <!-- 页面标题 -->
+        <div class="about-header">
+            <h1>关于我们</h1>
+            <p>致力于为读者提供最优质的图书馆管理服务，让阅读变得更加便捷、高效。</p>
+        </div>
+        
+        <!-- 关于卡片 -->
+        <div class="about-cards">
+            <div class="about-card">
+                <h3>🏛️ 我们的使命</h3>
+                <p>通过现代化的图书馆管理系统，连接读者与图书资源，促进知识的传播与共享。我们致力于打造一个智能、便捷、高效的图书管理平台，让每一位读者都能轻松享受阅读的乐趣。</p>
+            </div>
+            
+            <div class="about-card">
+                <h3>🎯 我们的愿景</h3>
+                <p>成为国内领先的图书馆管理解决方案提供商，推动图书馆行业的数字化转型，为读者创造更加优质的阅读体验，为图书馆管理者提供更加高效的管理工具。</p>
+            </div>
+            
+            <div class="about-card">
+                <h3>💡 我们的特色</h3>
+                <p>系统采用现代化的技术架构，具备智能搜索、在线借阅、实时库存管理、数据统计分析等功能，为读者和管理员提供全方位的服务支持。</p>
+            </div>
+        </div>
+        
+        <!-- 系统特色 -->
+        <div class="team-section">
+            <h2>系统特色功能</h2>
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="member-avatar">🔍</div>
+                    <div class="member-name">智能搜索</div>
+                    <p>支持多条件、智能化的图书搜索功能</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-avatar">📱</div>
+                    <div class="member-name">在线借阅</div>
+                    <p>随时随地借阅图书，无需到馆排队</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-avatar">📊</div>
+                    <div class="member-name">数据统计</div>
+                    <p>详细的借阅统计和分析报告</p>
+                </div>
+                
+                <div class="team-member">
+                    <div class="member-avatar">🔒</div>
+                    <div class="member-name">安全可靠</div>
+                    <p>银行级数据加密，保护用户信息安全</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 技术架构 -->
+        <div class="about-card" style="margin-bottom: 40px;">
+            <h3>⚙️ 技术架构</h3>
+            <p>本系统采用现代化的技术栈构建：</p>
+            <ul style="margin-left: 20px; margin-top: 15px; color: #666; line-height: 1.8;">
+                <li><strong>后端技术</strong>: Spring Boot, MongoDB</li>
+                <li><strong>前端技术</strong>: HTML5, CSS3, JavaScript, Thymeleaf</li>
+                <li><strong>数据库</strong>: MongoDB NoSQL数据库</li>
+                <li><strong>部署环境</strong>: Tomcat服务器，支持Docker容器化部署</li>
+                <li><strong>安全机制</strong>: 密码加密存储，会话管理，权限控制</li>
+            </ul>
+        </div>
+        
+        <!-- 联系方式 -->
+        <div class="about-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="color: white;">📞 联系我们</h3>
+            <p>如果您对我们的系统有任何建议或问题，欢迎随时联系我们：</p>
+            <ul style="margin-left: 20px; margin-top: 15px; line-height: 2;">
+                <li><strong>邮箱</strong>: contact@library.com</li>
+                <li><strong>电话</strong>: 400-123-4567</li>
+                <li><strong>地址</strong>: 北京市海淀区图书馆路1号</li>
+                <li><strong>工作时间</strong>: 周一至周五 9:00-18:00</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <p>© 2025 图书馆管理系统 | 版权所有</p>
+                </div>
+                <div class="footer-links">
+                    <a href="/about">关于我们</a>
+                    <a href="/help">帮助中心</a>
+                    <a href="#" onclick="window.print()">打印本页</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('关于我们页面加载完成');
+        });
+    </script>
+</body>
+</html>

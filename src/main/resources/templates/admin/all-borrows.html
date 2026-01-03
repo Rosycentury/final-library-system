@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有借阅记录 - 图书馆管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .borrow-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .borrow-table th, .borrow-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .borrow-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-borrowed {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .status-returned {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .status-overdue {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .filter-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="logo">📚 图书馆管理系统</a>
+            <div class="nav-links">
+                <a href="/admin/dashboard">返回仪表板</a>
+                <a href="/logout">退出登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1>所有借阅记录</h1>
+        
+        <div class="filter-form">
+            <h3>筛选记录</h3>
+            <form method="get" action="/admin/all-borrows">
+                <div class="filter-grid">
+                    <div>
+                        <label for="status">状态筛选</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="">全部状态</option>
+                            <option value="BORROWED">借阅中</option>
+                            <option value="RETURNED">已归还</option>
+                            <option value="OVERDUE">已逾期</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="username">读者姓名</label>
+                        <input type="text" id="username" name="username" class="form-control" placeholder="输入读者姓名">
+                    </div>
+                    
+                    <div>
+                        <label for="bookTitle">图书名称</label>
+                        <input type="text" id="bookTitle" name="bookTitle" class="form-control" placeholder="输入图书名称">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="margin-top: 15px;">筛选</button>
+                <a href="/admin/all-borrows" class="btn btn-secondary" style="margin-top: 15px;">重置</a>
+            </form>
+        </div>
+        
+        <div th:if="${records.empty}">
+            <p>暂无借阅记录</p>
+        </div>
+        
+        <div th:unless="${records.empty}">
+            <table class="borrow-table">
+                <thead>
+                    <tr>
+                        <th>借阅ID</th>
+                        <th>读者</th>
+                        <th>图书</th>
+                        <th>借阅日期</th>
+                        <th>应还日期</th>
+                        <th>归还日期</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="record : ${records}">
+                        <td th:text="${record.id}">借阅ID</td>
+                        <td th:text="${record.username}">读者</td>
+                        <td th:text="${record.bookTitle}">图书</td>
+                        <td th:text="${#temporals.format(record.borrowDate, 'yyyy-MM-dd HH:mm')}">借阅日期</td>
+                        <td th:text="${#temporals.format(record.dueDate, 'yyyy-MM-dd HH:mm')}">应还日期</td>
+                        <td>
+                            <span th:if="${record.returnDate != null}" 
+                                  th:text="${#temporals.format(record.returnDate, 'yyyy-MM-dd HH:mm')}"></span>
+                            <span th:unless="${record.returnDate != null}">-</span>
+                        </td>
+                        <td>
+                            <span th:class="'status-badge status-' + ${record.status.toLowerCase()}" 
+                                  th:text="${record.status}"></span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div style="margin-top: 20px;">
+                <p>共 <span th:text="${records.size()}">0</span> 条记录</p>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 图书馆管理系统 | 借阅记录管理</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${'用户详情 - ' + user.name}">用户详情 - 图书馆管理系统</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .user-profile {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        
+        .profile-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            margin-top: 20px;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-label {
+            width: 100px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .borrow-history {
+            margin-top: 20px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        .history-table th, .history-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .history-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-container">
+            <a href="/" class="logo">📚 图书馆管理系统</a>
+            <div class="nav-links">
+                <a href="/admin/users">返回用户列表</a>
+                <a href="/admin/dashboard">返回仪表板</a>
+                <a href="/logout">退出登录</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 th:text="${'用户详情：' + user.name}">用户详情</h1>
+        
+        <div class="user-profile">
+            <div class="profile-card">
+                <h2>基本信息</h2>
+                <div class="user-info">
+                    <div class="info-row">
+                        <div class="info-label">用户ID:</div>
+                        <div class="info-value" th:text="${user.id}">ID</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">用户名:</div>
+                        <div class="info-value" th:text="${user.username}">用户名</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">姓名:</div>
+                        <div class="info-value" th:text="${user.name}">姓名</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">邮箱:</div>
+                        <div class="info-value" th:text="${user.email}">邮箱</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">角色:</div>
+                        <div class="info-value">
+                            <span th:if="${user.role == 'ADMIN'}" style="color: #e74c3c; font-weight: bold;">管理员</span>
+                            <span th:if="${user.role == 'READER'}" style="color: #3498db; font-weight: bold;">读者</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">最大借阅:</div>
+                        <div class="info-value" th:text="${user.maxBorrow}">5</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">注册时间:</div>
+                        <div class="info-value" th:text="${#temporals.format(user.createTime, 'yyyy-MM-dd HH:mm:ss')}">注册时间</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <div class="info-label">更新时间:</div>
+                        <div class="info-value" th:text="${#temporals.format(user.updateTime, 'yyyy-MM-dd HH:mm:ss')}">更新时间</div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h3>操作</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="btn btn-primary" onclick="editUser()">编辑用户</button>
+                        <form th:action="@{'/admin/users/' + ${user.id} + '/delete'}" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-secondary" 
+                                    onclick="return confirm('确定删除用户 ' + ${user.username} + ' 吗？')">删除用户</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-card">
+                <h2>借阅记录</h2>
+                <div class="borrow-history">
+                    <div th:if="${borrowRecords.empty}" class="no-records">
+                        <p>📭 该用户暂无借阅记录</p>
+                    </div>
+                    
+                    <div th:unless="${borrowRecords.empty}">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>图书</th>
+                                    <th>借阅日期</th>
+                                    <th>应还日期</th>
+                                    <th>归还日期</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="record : ${borrowRecords}">
+                                    <td th:text="${record.bookTitle}">图书名称</td>
+                                    <td th:text="${#temporals.format(record.borrowDate, 'yyyy-MM-dd')}">借阅日期</td>
+                                    <td th:text="${#temporals.format(record.dueDate, 'yyyy-MM-dd')}">应还日期</td>
+                                    <td>
+                                        <span th:if="${record.returnDate != null}" 
+                                              th:text="${#temporals.format(record.returnDate, 'yyyy-MM-dd')}"></span>
+                                        <span th:unless="${record.returnDate != null}">-</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${record.status == 'BORROWED'}" style="color: #3498db; font-weight: bold;">借阅中</span>
+                                        <span th:if="${record.status == 'RETURNED'}" style="color: #2ecc71; font-weight: bold;">已归还</span>
+                                        <span th:if="${record.status == 'OVERDUE'}" style="color: #e74c3c; font-weight: bold;">已逾期</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div style="margin-top: 20px;">
+                            <p>共 <span th:text="${borrowRecords.size()}">0</span> 条借阅记录</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 图书馆管理系统 | 用户详情</p>
+        </div>
+    </footer>
+    
+    <script>
+        function editUser() {
+            alert('编辑用户功能开发中...');
+        }
+    </script>
+</body>
+</html>

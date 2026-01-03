@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${user.name + ' - 个人中心'}">个人中心</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --warning-color: #f39c12;
+        }
+        
+        .profile-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            position: relative;
+        }
+        
+        .avatar-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #36d1dc 0%, #5b86e5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .avatar-change {
+            position: absolute;
+            bottom: 10px;
+            right: 0;
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+        
+        .profile-content {
+            padding: 30px;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-weight: bold;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            margin-bottom: 15px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            color: #7f8c8d;
+            width: 120px;
+            display: inline-block;
+        }
+        
+        .info-value {
+            color: #2c3e50;
+        }
+        
+        .role-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+        
+        .role-admin {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .role-reader {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-item {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.85rem;
+        }
+        
+        .tab-content {
+            padding: 20px 0;
+        }
+        
+        .edit-form .form-control {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s;
+        }
+        
+        .edit-form .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2980b9 100%);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            font-weight: 600;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            background: #eee;
+            overflow: hidden;
+        }
+        
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .strength-weak { background: #e74c3c; }
+        .strength-medium { background: #f39c12; }
+        .strength-strong { background: #2ecc71; }
+        
+        .activity-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .activity-icon.borrow {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .activity-icon.return {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .activity-icon.renew {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <div th:replace="fragments/navbar :: navbar"></div>
+
+    <!-- 消息提示 -->
+    <div th:replace="fragments/navbar :: messages"></div>
+
+    <!-- 主要内容 -->
+    <div class="container-fluid mt-4">
+        <div class="profile-container">
+            <!-- 个人信息头部 -->
+            <div class="profile-header">
+                <div class="row align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="avatar-container">
+                            <div class="avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="avatar-change" data-bs-toggle="modal" data-bs-target="#avatarModal">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <h1 th:text="${user.name}"></h1>
+                        <p class="lead mb-2">
+                            <i class="fas fa-user-tag me-2"></i>
+                            <span th:text="${user.role == 'ADMIN' ? '管理员' : '普通读者'}"></span>
+                            <span th:if="${user.role == 'ADMIN'}" class="role-badge role-admin ms-2">
+                                <i class="fas fa-crown me-1"></i>管理员
+                            </span>
+                            <span th:if="${user.role == 'READER'}" class="role-badge role-reader ms-2">
+                                <i class="fas fa-book-reader me-1"></i>读者
+                            </span>
+                        </p>
+                        <p class="mb-0">
+                            <i class="fas fa-envelope me-2"></i>
+                            <span th:text="${user.email}"></span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 选项卡导航 -->
+            <div class="profile-content">
+                <ul class="nav nav-tabs" id="profileTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" 
+                                data-bs-target="#overview" type="button" role="tab">
+                            <i class="fas fa-user-circle me-2"></i>个人信息
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="edit-tab" data-bs-toggle="tab" 
+                                data-bs-target="#edit" type="button" role="tab">
+                            <i class="fas fa-edit me-2"></i>编辑资料
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="security-tab" data-bs-toggle="tab" 
+                                data-bs-target="#security" type="button" role="tab">
+                            <i class="fas fa-lock me-2"></i>安全设置
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="activity-tab" data-bs-toggle="tab" 
+                                data-bs-target="#activity" type="button" role="tab">
+                            <i class="fas fa-history me-2"></i>最近活动
+                        </button>
+                    </li>
+                </ul>
+                
+                <!-- 选项卡内容 -->
+                <div class="tab-content mt-4" id="profileTabContent">
+                    <!-- 概览 -->
+                    <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- 基本信息 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-info-circle me-2"></i>基本信息
+                                    </h4>
+                                    <div class="info-item">
+                                        <span class="info-label">用户名：</span>
+                                        <span class="info-value" th:text="${user.username}"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">姓名：</span>
+                                        <span class="info-value" th:text="${user.name}"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">邮箱：</span>
+                                        <span class="info-value" th:text="${user.email}"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">角色：</span>
+                                        <span class="info-value" th:text="${user.role == 'ADMIN' ? '管理员' : '读者'}"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">最大借阅数：</span>
+                                        <span class="info-value" th:text="${user.maxBorrow}"></span> 本
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">注册时间：</span>
+                                        <span class="info-value" 
+                                              th:text="${#temporals.format(user.createTime, 'yyyy-MM-dd HH:mm')}"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">最后更新：</span>
+                                        <span class="info-value" 
+                                              th:text="${#temporals.format(user.updateTime, 'yyyy-MM-dd HH:mm')}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!-- 借阅统计 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-chart-bar me-2"></i>借阅统计
+                                    </h4>
+                                    <div class="stats-grid">
+                                        <div class="stat-item">
+                                            <div class="stat-number" th:text="${currentBorrows}">0</div>
+                                            <div class="stat-label">当前借阅</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-number" th:text="${totalBorrows}">0</div>
+                                            <div class="stat-label">总借阅数</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-number" th:text="${overdueBorrows}">0</div>
+                                            <div class="stat-label">逾期记录</div>
+                                        </div>
+                                        <div class="stat-item">
+                                            <div class="stat-number" th:text="${user.maxBorrow}">5</div>
+                                            <div class="stat-label">借阅上限</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 账户状态 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-shield-alt me-2"></i>账户状态
+                                    </h4>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>账户安全：</span>
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>良好
+                                            </span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-0">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>借阅信用：</span>
+                                            <span class="text-success">
+                                                <i class="fas fa-star me-1"></i>优秀
+                                            </span>
+                                        </div>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" style="width: 95%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 编辑资料 -->
+                    <div class="tab-pane fade" id="edit" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-user-edit me-2"></i>编辑个人信息
+                                    </h4>
+                                    <form id="editProfileForm" class="edit-form">
+                                        <div class="mb-3">
+                                            <label for="editName" class="form-label">姓名</label>
+                                            <input type="text" class="form-control" id="editName" 
+                                                   th:value="${user.name}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editEmail" class="form-label">邮箱</label>
+                                            <input type="email" class="form-control" id="editEmail" 
+                                                   th:value="${user.email}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editPhone" class="form-label">手机号</label>
+                                            <input type="tel" class="form-control" id="editPhone" 
+                                                   placeholder="请输入手机号">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editAddress" class="form-label">地址</label>
+                                            <textarea class="form-control" id="editAddress" rows="3" 
+                                                      placeholder="请输入联系地址"></textarea>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="editBio" class="form-label">个人简介</label>
+                                            <textarea class="form-control" id="editBio" rows="3" 
+                                                      placeholder="介绍一下自己吧"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-save">
+                                            <i class="fas fa-save me-2"></i>保存更改
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <!-- 通知设置 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-bell me-2"></i>通知设置
+                                    </h4>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="notifyBorrow" checked>
+                                        <label class="form-check-label" for="notifyBorrow">
+                                            借阅成功通知
+                                        </label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="notifyReturn" checked>
+                                        <label class="form-check-label" for="notifyReturn">
+                                            归还成功通知
+                                        </label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="notifyRenew" checked>
+                                        <label class="form-check-label" for="notifyRenew">
+                                            续借成功通知
+                                        </label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="notifyDue" checked>
+                                        <label class="form-check-label" for="notifyDue">
+                                            到期提醒（提前3天）
+                                        </label>
+                                    </div>
+                                    <div class="mb-3 form-check">
+                                        <input type="checkbox" class="form-check-input" id="notifyOverdue" checked>
+                                        <label class="form-check-label" for="notifyOverdue">
+                                            逾期提醒
+                                        </label>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary btn-sm">
+                                        保存设置
+                                    </button>
+                                </div>
+                                
+                                <!-- 账户操作 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-cog me-2"></i>账户操作
+                                    </h4>
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-outline-warning" 
+                                                onclick="exportData()">
+                                            <i class="fas fa-download me-2"></i>导出个人数据
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                                            <i class="fas fa-trash-alt me-2"></i>注销账户
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 安全设置 -->
+                    <div class="tab-pane fade" id="security" role="tabpanel">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-key me-2"></i>修改密码
+                                    </h4>
+                                    <form id="changePasswordForm" class="edit-form">
+                                        <div class="mb-3">
+                                            <label for="currentPassword" class="form-label">当前密码</label>
+                                            <input type="password" class="form-control" id="currentPassword" 
+                                                   placeholder="请输入当前密码" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="newPassword" class="form-label">新密码</label>
+                                            <input type="password" class="form-control" id="newPassword" 
+                                                   placeholder="请输入新密码" required minlength="6">
+                                            <div class="password-strength">
+                                                <div class="strength-bar" id="strengthBar"></div>
+                                            </div>
+                                            <div class="form-text" id="passwordHint">密码强度：弱</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="confirmPassword" class="form-label">确认新密码</label>
+                                            <input type="password" class="form-control" id="confirmPassword" 
+                                                   placeholder="请再次输入新密码" required>
+                                            <div class="form-text" id="confirmHint"></div>
+                                        </div>
+                                        <button type="submit" class="btn btn-save">
+                                            <i class="fas fa-lock me-2"></i>修改密码
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <!-- 登录记录 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-sign-in-alt me-2"></i>最近登录记录
+                                    </h4>
+                                    <div class="activity-list">
+                                        <div class="activity-item d-flex align-items-center">
+                                            <div class="activity-icon borrow">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">登录成功</div>
+                                                <small class="text-muted">今天 10:30 - 来自 Chrome, Windows</small>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item d-flex align-items-center">
+                                            <div class="activity-icon return">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">登录成功</div>
+                                                <small class="text-muted">昨天 15:20 - 来自 Firefox, Windows</small>
+                                            </div>
+                                        </div>
+                                        <div class="activity-item d-flex align-items-center">
+                                            <div class="activity-icon renew">
+                                                <i class="fas fa-sign-in-alt"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">登录失败</div>
+                                                <small class="text-muted">前天 09:15 - 来自 Safari, Mac</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- 安全建议 -->
+                                <div class="info-card">
+                                    <h4 class="section-title">
+                                        <i class="fas fa-shield-alt me-2"></i>安全建议
+                                    </h4>
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            定期修改密码
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            不要使用简单密码
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            不要在公共设备保存密码
+                                        </li>
+                                        <li class="mb-0">
+                                            <i class="fas fa-check-circle text-success me-2"></i>
+                                            发现异常及时联系管理员
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 最近活动 -->
+                    <div class="tab-pane fade" id="activity" role="tabpanel">
+                        <div class="info-card">
+                            <h4 class="section-title">
+                                <i class="fas fa-history me-2"></i>最近活动
+                            </h4>
+                            <div class="activity-list">
+                                <div class="activity-item d-flex align-items-center">
+                                    <div class="activity-icon borrow">
+                                        <i class="fas fa-book-open"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">借阅图书</div>
+                                        <div class="text-muted">《Java编程思想》</div>
+                                        <small class="text-muted">今天 10:30</small>
+                                    </div>
+                                    <div class="badge bg-success">成功</div>
+                                </div>
+                                
+                                <div class="activity-item d-flex align-items-center">
+                                    <div class="activity-icon return">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">归还图书</div>
+                                        <div class="text-muted">《Spring Boot实战》</div>
+                                        <small class="text-muted">昨天 15:20</small>
+                                    </div>
+                                    <div class="badge bg-success">成功</div>
+                                </div>
+                                
+                                <div class="activity-item d-flex align-items-center">
+                                    <div class="activity-icon renew">
+                                        <i class="fas fa-redo"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">续借图书</div>
+                                        <div class="text-muted">《Python编程》</div>
+                                        <small class="text-muted">前天 09:15</small>
+                                    </div>
+                                    <div class="badge bg-success">成功</div>
+                                </div>
+                                
+                                <div class="activity-item d-flex align-items-center">
+                                    <div class="activity-icon borrow">
+                                        <i class="fas fa-book-open"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">借阅失败</div>
+                                        <div class="text-muted">库存不足</div>
+                                        <small class="text-muted">3天前 14:30</small>
+                                    </div>
+                                    <div class="badge bg-danger">失败</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 头像修改模态框 -->
+    <div class="modal fade" id="avatarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">修改头像</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar mx-auto mb-3" style="width: 150px; height: 150px;">
+                            <i class="fas fa-user" style="font-size: 4rem;"></i>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="avatarUpload" class="form-label">上传新头像</label>
+                        <input class="form-control" type="file" id="avatarUpload" accept="image/*">
+                    </div>
+                    <p class="text-muted small">
+                        支持 JPG, PNG 格式，文件大小不超过 2MB
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">保存头像</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注销账户模态框 -->
+    <div class="modal fade" id="deleteAccountModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">注销账户</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>警告：</strong>此操作不可逆！
+                    </div>
+                    <p>注销账户将导致：</p>
+                    <ul>
+                        <li>所有个人信息将被删除</li>
+                        <li>借阅记录将被清除</li>
+                        <li>无法恢复账户</li>
+                        <li>如有未还图书需先归还</li>
+                    </ul>
+                    <div class="mb-3">
+                        <label for="confirmDelete" class="form-label">输入密码确认</label>
+                        <input type="password" class="form-control" id="confirmDelete" 
+                               placeholder="请输入密码确认">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger">确认注销</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div th:replace="fragments/navbar :: footer"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- 自定义脚本 -->
+    <script>
+        // 密码强度检测
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            const strengthBar = document.getElementById('strengthBar');
+            const passwordHint = document.getElementById('passwordHint');
+            
+            if (password.length >= 8) strength++;
+            if (password.length >= 12) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            strengthBar.style.width = (strength * 16.66) + '%';
+            
+            if (strength <= 2) {
+                strengthBar.className = 'strength-bar strength-weak';
+                passwordHint.textContent = '密码强度：弱';
+                passwordHint.style.color = '#e74c3c';
+            } else if (strength <= 4) {
+                strengthBar.className = 'strength-bar strength-medium';
+                passwordHint.textContent = '密码强度：中等';
+                passwordHint.style.color = '#f39c12';
+            } else {
+                strengthBar.className = 'strength-bar strength-strong';
+                passwordHint.textContent = '密码强度：强';
+                passwordHint.style.color = '#2ecc71';
+            }
+        }
+        
+        // 密码确认检查
+        function checkPasswordMatch() {
+            const password = document.getElementById('newPassword');
+            const confirmPassword = document.getElementById('confirmPassword');
+            const confirmHint = document.getElementById('confirmHint');
+            
+            if (!confirmPassword.value) {
+                confirmHint.textContent = '';
+                confirmHint.style.color = '';
+            } else if (password.value !== confirmPassword.value) {
+                confirmHint.textContent = '密码不匹配';
+                confirmHint.style.color = '#e74c3c';
+                return false;
+            } else {
+                confirmHint.textContent = '密码匹配';
+                confirmHint.style.color = '#2ecc71';
+                return true;
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            if (confirm('确定要导出个人数据吗？')) {
+                alert('数据导出功能正在开发中...');
+            }
+        }
+        
+        // 表单验证
+        document.addEventListener('DOMContentLoaded', function() {
+            // 修改密码表单
+            const changePasswordForm = document.getElementById('changePasswordForm');
+            if (changePasswordForm) {
+                const newPasswordInput = document.getElementById('newPassword');
+                const confirmPasswordInput = document.getElementById('confirmPassword');
+                
+                newPasswordInput.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                    checkPasswordMatch();
+                });
+                
+                confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+                
+                changePasswordForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    if (!checkPasswordMatch()) {
+                        alert('两次输入的密码不一致');
+                        return;
+                    }
+                    
+                    if (newPasswordInput.value.length < 6) {
+                        alert('密码长度至少6位');
+                        return;
+                    }
+                    
+                    // 这里可以添加Ajax请求
+                    alert('密码修改功能正在开发中...');
+                });
+            }
+            
+            // 编辑资料表单
+            const editProfileForm = document.getElementById('editProfileForm');
+            if (editProfileForm) {
+                editProfileForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    alert('资料修改功能正在开发中...');
+                });
+            }
+            
+            // 自动关闭警告框
+            setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                });
+            }, 5000);
+        });
+        <!-- 在 user/profile.html 中更新统计部分 -->
+        <div class="quick-stats">
+            <div class="quick-stat">
+                <div class="stat-number" th:text="${userStats != null ? userStats.currentBorrows : 0}">0</div>
+                <div class="stat-label">当前借阅</div>
+            </div>
+            
+            <div class="quick-stat">
+                <div class="stat-number" th:text="${userStats != null ? userStats.totalBorrows : 0}">0</div>
+                <div class="stat-label">总借阅数</div>
+            </div>
+            
+            <div class="quick-stat">
+                <div class="stat-number" th:text="${userStats != null ? userStats.overdueCount : 0}">0</div>
+                <div class="stat-label">逾期数量</div>
+            </div>
+            
+            <div class="quick-stat">
+                <div class="stat-number" th:text="${user != null ? user.maxBorrow : 5}">5</div>
+                <div class="stat-label">最大借阅</div>
+            </div>
+        </div>
+    </script>
+</body>
+</html>

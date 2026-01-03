@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户首页 - 图书馆管理系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #2196F3;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #1976D2;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>欢迎回来，[[${username}]]！</h1>
+            <p>您的身份：[[${role == 'ADMIN' ? '管理员' : '普通用户'}]]</p>
+        </div>
+        
+        <div class="card">
+            <h2>📚 快速导航</h2>
+            <div>
+                <a href="/books" class="btn">浏览图书</a>
+                <a href="/borrow/my-records" class="btn">我的借阅</a>
+                <a href="/profile" class="btn">个人中心</a>
+                <a href="/logout" class="btn" style="background-color: #f44336;">退出登录</a>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📊 系统功能</h2>
+            <p>这是一个简化的首页版本，用于测试基本功能是否正常。</p>
+            <p>如果这个页面能正常显示，说明系统基本框架工作正常。</p>
+            <p>请检查以下内容：</p>
+            <ul>
+                <li>图书列表页面是否正常</li>
+                <li>借阅记录页面是否正常</li>
+                <li>个人中心页面是否正常</li>
+            </ul>
+        </div>
+        
+        <div class="card">
+            <h2>📝 系统信息</h2>
+            <p>当前时间: <span id="currentTime"></span></p>
+            <p>页面加载状态: <span id="status">正常</span></p>
+        </div>
+    </div>
+    
+    <script>
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+        }
+        
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('简化首页加载完成');
+            console.log('用户信息:', {
+                username: '[[${username}]]',
+                role: '[[${role}]]'
+            });
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // 检查页面元素
+            const elements = document.querySelectorAll('.card');
+            console.log('页面卡片数量:', elements.length);
+        });
+    </script>
+</body>
+</html>

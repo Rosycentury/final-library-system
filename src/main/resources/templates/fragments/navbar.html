@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>图书馆管理系统</title>
+</head>
+<body>
+
+<!-- 导航栏片段 -->
+<div th:fragment="navbar" class="navbar-container">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/}">
+                <i class="fas fa-book"></i> 图书馆管理系统
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <!-- 首页 -->
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">
+                            <i class="fas fa-home"></i> 首页
+                        </a>
+                    </li>
+                    
+                    <!-- 图书相关 -->
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/books}">
+                            <i class="fas fa-book-open"></i> 图书列表
+                        </a>
+                    </li>
+                    
+                    <!-- 借阅相关 -->
+                    <li class="nav-item" th:if="${session.user != null}">
+                        <a class="nav-link" th:href="@{/borrow/my-records}">
+                            <i class="fas fa-history"></i> 我的借阅
+                        </a>
+                    </li>
+                    
+                    <!-- 管理员菜单 -->
+                    <li class="nav-item" th:if="${session.role == 'ADMIN'}">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">
+                            <i class="fas fa-cog"></i> 管理后台
+                        </a>
+                    </li>
+                    
+                    <!-- 用户相关 -->
+                    <li class="nav-item dropdown" th:if="${session.user != null}">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user"></i> 
+                            <span th:text="${session.username}">用户</span>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                            <li>
+                                <a class="dropdown-item" th:href="@{/profile}">
+                                    <i class="fas fa-id-card"></i> 个人中心
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item" th:href="@{/logout}">
+                                    <i class="fas fa-sign-out-alt"></i> 退出登录
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <!-- 搜索框 -->
+                <form class="d-flex me-3" th:action="@{/books}" method="get" th:if="${session.user != null}">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="keyword" 
+                               placeholder="搜索图书..." aria-label="搜索图书">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- 登录/注册按钮 -->
+                <div class="navbar-nav" th:if="${session.user == null}">
+                    <a class="nav-link" th:href="@{/login}">
+                        <i class="fas fa-sign-in-alt"></i> 登录
+                    </a>
+                    <a class="nav-link" th:href="@{/register}">
+                        <i class="fas fa-user-plus"></i> 注册
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<!-- 消息提示片段 -->
+<div th:fragment="messages">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+</div>
+
+<!-- 页脚片段 -->
+<div th:fragment="footer">
+    <footer class="footer mt-auto py-3 bg-light border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <span class="text-muted">
+                        <i class="fas fa-book"></i> 图书馆管理系统 v1.0
+                    </span>
+                </div>
+                <div class="col-md-6 text-end">
+                    <span class="text-muted">
+                        <i class="fas fa-user-graduate"></i> 基于AI辅助开发的项目
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>
